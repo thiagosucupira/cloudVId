@@ -132,10 +132,103 @@ You can modify these in the `process_video_batch.py` file.
 - **Model Selection**: For lower VRAM GPUs, consider using the non-XT version of the video model
 - **xformers**: Enabled by default for memory-efficient attention
 
+## Converting YouTube Video Creator Format
+
+CloudVid now supports converting JSON files from the YouTube Video Creator format. The `convert_to_cloudvid.py` script transforms YouTube's scene descriptions into CloudVid-compatible format.
+
+### How It Works
+
+The converter:
+- Extracts scene descriptions and motion directions from the YouTube format
+- Creates proper t2i and i2v parameter sets for each scene
+- Preserves aspect ratio information (e.g., `::1.3` notation in scene descriptions)
+- Handles both regular scenes and nested event scenes
+- Preserves all original data in an enriched output file
+
+### Usage
+
+```bash
+python convert_to_cloudvid.py input_youtube_json [--output output_path] [--no-preserve]
+```
+
+Parameters:
+- `input_youtube_json`: Path to the YouTube format JSON file
+- `--output, -o`: (Optional) Output path for the CloudVid JSON file. If not specified, a timestamped file will be created in the same directory
+- `--no-preserve`: (Optional) Do not create an enriched version with the original data
+
+### Output Files
+
+The converter creates two files:
+1. A CloudVid-compatible JSON file that can be directly used with the `process_video_batch.py` script
+2. An enriched version with `_with_original` suffix that preserves all the original YouTube data
+
+### Example
+
+```bash
+# Basic conversion
+python convert_to_cloudvid.py output/yout_20250501_011057/raw_json_yout_20250501_011057.json
+
+# Specify output file
+python convert_to_cloudvid.py input.json -o converted_scenes.json
+
+# Convert without creating the enriched version
+python convert_to_cloudvid.py input.json --no-preserve
+```
+
+### Format Compatibility
+
+The YouTube Video Creator JSON has this structure:
+```json
+{
+  "title": "Video Title",
+  "art_style": "Description of art style",
+  "scene_directions": [
+    {
+      "scene_desc": "Scene description",
+      "motion_desc": "Motion description",
+      "narration": "Narration text",
+      // Other fields...
+    },
+    // More scenes...
+  ]
+}
+```
+
+It gets converted to CloudVid's format:
+```json
+[
+  {
+    "id": "scene_0",
+    "scene_desc": "Scene description",
+    "motion_desc": "Motion description",
+    "t2i_params": {
+      "num_inference_steps": 30,
+      "guidance_scale": 7.5,
+      "width": 768,
+      "height": 512,
+      "negative_prompt": "blurry, low quality, watermark, text, deformed"
+    },
+    "i2v_params": {
+      "motion_bucket_id": 127,
+      "fps": 8,
+      "num_frames": 24,
+      "decode_chunk_size": 8,
+      "noise_aug_strength": 0.02
+    },
+    "metadata": {
+      "original_data": {
+        // All original scene data preserved here
+      }
+    }
+  },
+  // More scenes...
+]
+```
+
 ## License
 
 This project is provided as-is for research and creative purposes.
 
 ## Acknowledgments
 
-This project leverages the incredible work of Stability AI and the Hugging Face community. 
+This project leverages the incredible work of Stability AI and the Hugging Face community.
