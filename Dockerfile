@@ -37,7 +37,8 @@ RUN mkdir -p /app/huggingface_cache /app/input_data /app/output_data
 
 # Set Hugging Face cache directory environment variable
 ENV HF_HOME=/app/huggingface_cache
-ENV XDG_CACHE_HOME=/app/huggingface_cache # Some older versions might use this
+# Some older versions might use this alternative cache path
+ENV XDG_CACHE_HOME=/app/huggingface_cache
 
 # Command to run your script
 # The script will expect JSON in /app/input_data and write to /app/output_data
