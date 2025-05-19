@@ -1,0 +1,9 @@
+
+torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+diffusers
+transformers
+accelerate
+Pillow
+safetensors
+# Add xformers here if you uncomment its installation in the Dockerfile and intend to use it
+# xformers

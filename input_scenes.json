@@ -1,0 +1,41 @@
+
+[
+  {
+    "id": "dragon_flight_001",
+    "scene_desc": "Epic high fantasy landscape, a majestic dragon with shimmering golden scales soaring above a misty valley towards a distant, ancient castle. Cinematic lighting, dramatic clouds, detailed feathers and scales.",
+    "motion_desc": "Smooth, slow, soaring flight, slight wing flaps.",
+    "t2i_params": {
+      "num_inference_steps": 30,
+      "guidance_scale": 7.0,
+      "width": 768,
+      "height": 512,
+      "negative_prompt": "blurry, low quality, cartoon, watermark, text, deformed"
+    },
+    "i2v_params": {
+      "motion_bucket_id": 100,
+      "fps": 6,
+      "num_frames": 25,
+      "decode_chunk_size": 8,
+      "noise_aug_strength": 0.02
+    }
+  },
+  {
+    "id": "cyberpunk_city_002",
+    "scene_desc": "A vibrant cyberpunk cityscape at night. Rain-slicked streets reflect neon signs. Flying vehicles zoom between towering skyscrapers. Dense, atmospheric, Blade Runner style.",
+    "motion_desc": "Fast-paced traffic, camera panning slightly upwards.",
+    "t2i_params": {
+      "num_inference_steps": 25,
+      "guidance_scale": 7.5,
+      "width": 768,
+      "height": 512,
+      "negative_prompt": "daytime, bright, oversaturated, ugly"
+    },
+    "i2v_params": {
+      "motion_bucket_id": 180,
+      "fps": 8,
+      "num_frames": 25,
+      "decode_chunk_size": 4,
+      "noise_aug_strength": 0.02
+    }
+  }
+]
