@@ -1,9 +1,11 @@
-
 torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-diffusers
-transformers
-accelerate
-Pillow
-safetensors
-# Add xformers here if you uncomment its installation in the Dockerfile and intend to use it
+diffusers>=0.23.0
+transformers>=4.35.0
+accelerate>=0.23.0
+Pillow>=10.0.0
+safetensors>=0.4.0
+xformers>=0.0.22
+opencv-python>=4.8.0
+moviepy>=1.0.3
+# Uncomment below to enable xformers for memory-efficient attention
 # xformers

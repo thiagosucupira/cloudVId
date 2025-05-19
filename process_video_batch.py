@@ -78,12 +78,19 @@ def generate_video_from_image(image, motion_bucket_id=127, fps=7, num_frames=25,
         raise RuntimeError("Image-to-Video model not loaded.")
 
     # SVD expects a specific image size, often 1024x576 or 576x1024.
-    # Resize the input image if necessary. SVD-XT typically trained on 1024x576.
+    # For higher quality, we'll use 1920x1080 if it can handle it, otherwise keep 1024x576
     original_width, original_height = image.size
-    target_width, target_height = (1024, 576) # Common for SVD-XT
-
-    if original_width != target_width or original_height != target_height:
-        print(f"    Resizing image from {original_width}x{original_height} to {target_width}x{target_height} for SVD.")
+    target_width, target_height = (1920, 1080)  # Target 1080p resolution
+    
+    # If SVD can't handle 1080p, fall back to its preferred resolution
+    try:
+        if original_width != target_width or original_height != target_height:
+            print(f"    Resizing image from {original_width}x{original_height} to {target_width}x{target_height} for SVD.")
+            image = image.resize((target_width, target_height), Image.Resampling.LANCZOS)
+    except Exception as e:
+        print(f"    Error resizing to 1080p: {e}. Falling back to 1024x576.")
+        # Fall back to standard SVD-XT resolution
+        target_width, target_height = (1024, 576)
         image = image.resize((target_width, target_height), Image.Resampling.LANCZOS)
 
     frames = i2v_pipe(
@@ -104,16 +111,16 @@ def process_scene(scene_data, output_dir="output"):
     
     # Get T2I parameters or use defaults
     t2i_params = scene_data.get("t2i_params", {})
-    t2i_steps = t2i_params.get("num_inference_steps", 25)
+    t2i_steps = t2i_params.get("num_inference_steps", 30)  # Increased from 25 for better quality
     t2i_guidance = t2i_params.get("guidance_scale", 7.5)
-    t2i_width = t2i_params.get("width", 512) # Default SD 2.1 base width
-    t2i_height = t2i_params.get("height", 512) # Default SD 2.1 base height
+    t2i_width = t2i_params.get("width", 1024)  # Increased from 512
+    t2i_height = t2i_params.get("height", 768)  # Increased from 512 for proper aspect ratio
     t2i_negative_prompt = t2i_params.get("negative_prompt", "blurry, low quality, unrealistic")
 
     # Get I2V parameters or use defaults
     i2v_params = scene_data.get("i2v_params", {})
     i2v_motion_bucket_id = i2v_params.get("motion_bucket_id", 127)
-    i2v_fps = i2v_params.get("fps", 7)
+    i2v_fps = i2v_params.get("fps", 24)  # Increased from 7 for smoother video
     i2v_num_frames = i2v_params.get("num_frames", 25) # SVD-XT default is 25
     i2v_decode_chunk_size = i2v_params.get("decode_chunk_size", 8)
     i2v_noise_aug_strength = i2v_params.get("noise_aug_strength", 0.02)
@@ -239,13 +246,13 @@ if __name__ == "__main__":
                 "t2i_params": {
                     "num_inference_steps": data.get("num_inference_steps", 30),
                     "guidance_scale": data.get("guidance_scale", 7.5),
-                    "width": data.get("width", 512),
-                    "height": data.get("height", 512),
+                    "width": data.get("width", 1024),  # Changed from 512
+                    "height": data.get("height", 768),  # Changed from 512
                     "negative_prompt": "blurry, low quality, unrealistic"
                 },
                 "i2v_params": {
                     "motion_bucket_id": data.get("motion_bucket_id", 127),
-                    "fps": data.get("fps", 7),
+                    "fps": data.get("fps", 24),  # Increased from 7 for smoother video
                     "num_frames": data.get("num_frames", 25),
                     "decode_chunk_size": 8,
                     "noise_aug_strength": 0.02
